@@ -34,12 +34,12 @@ class RequestItem(request.BaseRequest):
 
         self.has_announcements = (len(self.announcements._data)>=1)
 
-    def log(self, status):
+    def log(self, head):
         rm.Request.new_request(user=self.session.id,
                                ip=self.remote,
                                agent=self.user_agent,
                                url=self._raw_url,
                                method=self.method,
                                referer=self.referer,
-                               status=status,
-                               error=self.error)
+                               status=head.status,
+                               error=head.error)
