@@ -25,10 +25,10 @@ import models.rethink.request.requestModel as rm
 
 
 class RequestItem(request.BaseRequest):
-    def buildSession(self):
+    def build_session(self):
         self.session = sm.session("session:"+self.session_ID)
 
-    def buildCfg(self):
+    def build_cfg(self):
         self.buckets = bm.CfgBuckets()
         self.announcements = am.CfgAnnouncements()
 
