@@ -9,12 +9,12 @@ For more information, see: https://github.com/JoshAshby/
 http://xkcd.com/353/
 
 Josh Ashby
-2012
+2014
 http://joshashby.com
 joshuaashby@joshashby.com
 """
 import traceback
-import actions
+import seshat.actions as actions
 
 import seshat.base_object as base
 from seshat.head import Head
