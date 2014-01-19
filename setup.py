@@ -12,6 +12,5 @@ setup(
     description='Common helpers for Seshat that I use',
     long_description=open('README.rst').read(),
     install_requires=[
-        "Seshat >= 1.0.0"
     ],
 )
