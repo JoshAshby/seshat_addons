@@ -25,6 +25,8 @@ import models.rethink.request.requestModel as rm
 
 
 class RequestItem(request.BaseRequest):
+    cookie_name = "bug_sid"
+
     def build_session(self):
         self.session = sm.session("session:"+self.session_ID)
 
