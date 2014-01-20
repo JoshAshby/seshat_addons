@@ -31,10 +31,7 @@ class MixedObject(base.BaseObject):
     _tmpl = None
     _title = None
 
-    def post_init_hook(self):
-        self.head = Head("200 OK")
-
-    def _build(self):
+    def pre_content_hook(self):
         if self._no_login and self.request.session.id:
             self.request.session.push_alert("That page is only for non logged in people. Weird huh?", level="info")
             if not self._redirect_url:
@@ -63,9 +60,8 @@ class MixedObject(base.BaseObject):
                         self.head = Head("303 SEE OTHER", [("Location", self._redirect_url)])
                     return "", self.head
 
-        content, self.head = super(MixedObject, self)._build()
+        return None, None
 
+    def post_content_hook(self):
         if self.head.status not in ["303 SEE OTHER"]:
             del self.request.session.alerts
-
-        return content, self.head

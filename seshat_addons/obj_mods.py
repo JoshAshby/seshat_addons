@@ -18,10 +18,12 @@ joshuaashby@joshashby.com
 def login(groups=None, redirect="", quiet=False):
     if groups is None:
         groups = []
+
     def wrapper(HTTPObject):
         HTTPObject._login = (True, quiet)
         HTTPObject._groups = groups
         HTTPObject._redirect_url = redirect
+
         return HTTPObject
     return wrapper
 
@@ -31,6 +33,7 @@ def not_logged_in(redirect=""):
         HTTPObject._login = (False, False)
         HTTPObject._no_login = True
         HTTPObject._redirect_url = redirect
+
         return HTTPObject
     return wrapper
 
