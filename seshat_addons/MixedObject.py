@@ -13,9 +13,6 @@ Josh Ashby
 http://joshashby.com
 joshuaashby@joshashby.com
 """
-import traceback
-import seshat.actions as actions
-
 import seshat.base_object as base
 from seshat.head import Head
 
@@ -38,8 +35,6 @@ class MixedObject(base.BaseObject):
         self.head = Head("200 OK")
 
     def _build(self):
-        content = ""
-
         if self._no_login and self.request.session.id:
             self.request.session.push_alert("That page is only for non logged in people. Weird huh?", level="info")
             if not self._redirect_url:
@@ -68,17 +63,7 @@ class MixedObject(base.BaseObject):
                         self.head = Head("303 SEE OTHER", [("Location", self._redirect_url)])
                     return "", self.head
 
-        try:
-            content = getattr(self, self.request.method)()
-
-            if isinstance(content, actions.BaseAction):
-                self.head = content.head
-
-            else:
-                content = unicode(content)
-
-        except Exception:
-            self.head.error = str(traceback.format_exc())
+        content, self.head = super(MixedObject, self)._build()
 
         if self.head.status not in ["303 SEE OTHER"]:
             del self.request.session.alerts
