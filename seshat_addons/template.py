@@ -122,7 +122,7 @@ NEW MTIME: %s
             if partials_ready:
                 tmpl = self._parse_partials()
             else:
-                tmpl = raw
+                tmpl = self._raw_template
 
             self._raw_to_engine(tmpl)
 
