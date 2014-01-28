@@ -52,27 +52,81 @@ class templateFile(object):
         self._config = {}
         self._read_template()
 
+    def _read_template(self):
+        """
+        Read in the template only if it has been modified since we first
+        read it into our `_template`
+        """
+        mtime = os.path.getmtime(self._file)
+
+        nt = arrow.get(mtime).format(time_format)
+        logger.debug("""\n\r============== Template =================
+    Reading template into memory...
+    TEMPLATE:  %s
+    TYPE: %s
+    MTIME: %s
+""" % (self._file, self.extension, nt))
+
+        with open(self._file, "r") as openTmpl:
+            raw = unicode(openTmpl.read())
+
+        self._mtime = mtime
+        self._parse_raw(raw)
+
+    def _parse_raw(self, raw):
+        if raw[:3] == config_delim:
+            config, template = raw.split(config_delim, 2)[1:]
+            self._config = yaml.load(config)
+        else:
+            self._config = {}
+            template = raw
+
+        self._raw_template = template
+
+    def _raw_to_engine(self, raw):
+        if(self.is_mustache):
+            self._engine_template = raw
+
+        if(self.is_jinja):
+            self._engine_template = jinja2.Template(raw)
+
+    def _parse_partials(self):
+        try:
+            pre_engine = copy.copy(self._raw_template)
+            matches = partial_re.findall(self._raw_template)
+
+            if matches:
+                for match in matches:
+                    name = match[:len(match)-2][3:]
+                    pre_engine = pre_engine.replace(match, tmpls[name].template)
+
+            self._raw_to_engine(pre_engine)
+
+        except KeyError:
+            raise KeyError("Couldn't find the template {}, as a partial of {}".format(name, self._file_bit))
+
+    def _update_template(self):
+        mtime = os.path.getmtime(self._file)
+
+        if self._mtime < mtime:
+            pt = arrow.get(self._mtime).format(time_format)
+            nt = arrow.get(mtime).format(time_format)
+            logger.debug("""\n\r============== Template =================
+    Rereading template into memory...
+    TEMPLATE:  %s
+    TYPE: %s
+    OLD MTIME: %s
+    NEW MTIME: %s
+""" % (self._file, self.extension, pt, nt))
+
+            self._read_template()
+
+        self._parse_partials()
+
     @property
     def template(self):
-        """
-        Returns the template, while reading it in if the file has been
-        modified since we first read it in, and only if we are in debug
-        mode. Otherwise this will just return the template stored in memory
-        from first read/startup.
-        """
         if dynamic_reloading:
-            self._read_template()
-
-        return self._engine_template
-
-    @property
-    def raw(self):
-        """
-        Returns the raw template string, unlike template() which returns the
-        string wrapped in the correct template engine
-        """
-        if dynamic_reloading:
-            self._read_template()
+            self._update_template()
 
         return self._raw_template
 
@@ -92,89 +146,17 @@ class templateFile(object):
     def is_mustache(self):
         return self.extension=="mustache"
 
-    def _read_template(self):
-        """
-        Read in the template only if it has been modified since we first
-        read it into our `_template`
-        """
-        mtime = os.path.getmtime(self._file)
-
-        if hasattr(self, "_raw_template"):
-            self._update_partials()
-
-        if self._mtime < mtime:
-            pt = arrow.get(self._mtime).format(time_format)
-            nt = arrow.get(mtime).format(time_format)
-            logger.debug("""\n\r============== Template =================
-Rereading template into memory...
-TEMPLATE:  %s
-TYPE: %s
-OLD MTIME: %s
-NEW MTIME: %s
-""" % (self._file, self.extension, pt, nt))
-
-            with open(self._file, "r") as openTmpl:
-                raw = unicode(openTmpl.read())
-
-            self._mtime = mtime
-            self._parse_raw(raw)
-
-            if partials_ready:
-                tmpl = self._parse_partials()
-            else:
-                tmpl = self._raw_template
-
-            self._raw_to_engine(tmpl)
-
-    def _parse_raw(self, raw):
-        if raw[:3] == config_delim:
-            config, template = raw.split(config_delim, 2)[1:]
-            self._config = yaml.load(config)
-        else:
-            self._config = {}
-            template = raw
-
-        self._raw_template = template
-
-    def _raw_to_engine(self, raw):
-        if(self.is_mustache):
-            self._engine_template = raw
-        if(self.is_jinja):
-            self._engine_template = jinja2.Template(raw)
-
-    def _parse_partials(self):
-        try:
-            pre_engine = copy.copy(self._raw_template)
-            matches = partial_re.findall(self._raw_template)
-            if matches:
-                for match in matches:
-                    name = match[:len(match)-2][3:]
-                    pre_engine = pre_engine.replace(match, tmpls[name].raw)
-
-            return pre_engine
-        except KeyError:
-            raise KeyError("Couldn't find the template {}, as a partial of {}".format(name, self._file_bit))
-
-    def _update_partials(self):
-        try:
-            matches = partial_re.findall(self._raw_template)
-            if matches:
-                for match in matches:
-                    name = match[:len(match)-2][3:]
-                    tmpls[name].raw
-
-        except KeyError:
-            raise KeyError("Couldn't find the template {}, as a partial of {}".format(name, self._file_bit))
-
     def render(self, data):
-        _data = copy.deepcopy(self._config)
+        if dynamic_reloading:
+            self._update_template()
 
+        _data = copy.deepcopy(self._config)
         _data.update(data)
 
         if(self.is_jinja):
-            wat = unicode(self.template.render(_data))
+            wat = unicode(self._engine_template.render(_data))
         else:
-            result = pystache.render(self.template, _data)
+            result = pystache.render(self._engine_template, _data)
             wat = unicode(result)
 
         del _data
