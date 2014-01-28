@@ -23,7 +23,7 @@ import arrow
 import copy
 import re
 
-logger = logging.getLogger("seshat_addons.views")
+logger = logging.getLogger("seshat.views")
 
 
 dynamic_reloading = False
