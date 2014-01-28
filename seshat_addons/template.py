@@ -108,7 +108,7 @@ class templateFile(object):
         try:
             for match in partials:
                 name = match[:len(match)-2][3:]
-                pre_engine = pre_engine.replace(match, tmpls[name].template)
+                pre_engine = re.sub(match, tmpls[name].template, pre_engine)
 
             self._raw_to_engine(pre_engine)
 
