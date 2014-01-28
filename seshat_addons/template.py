@@ -316,22 +316,23 @@ class PartialTemplate(template):
         return unicode(body)
 
 
-# Parse all template files into a template object
-for top, folders, files in os.walk(templates_base):
-    for fi in files:
-        base = top.split(templates_base)[1]
-        file_name, extension = fi.rsplit('.', 1)
-        if extension in ["mustache", "jinja"]:
-            name = '/'.join([base, file_name]).lstrip('/')
-            fi = '/'.join([base, fi])
-            tmpls[name] = templateFile(fi)
+def read_in_templates():
+    global partials_ready
+  # Parse all template files into a template object
+    for top, folders, files in os.walk(templates_base):
+        for fi in files:
+            base = top.split(templates_base)[1]
+            file_name, extension = fi.rsplit('.', 1)
+            if extension in ["mustache", "jinja"]:
+                name = '/'.join([base, file_name]).lstrip('/')
+                fi = '/'.join([base, fi])
+                tmpls[name] = templateFile(fi)
 
-partials_ready = True
+    partials_ready = True
 
-
-logger.debug("Parsing templates for partials and performing replacements.")
-# Parse all partials within the templates, replacing the partial text with the
-# given partial, so that we have support for partials in both mustache and
-# jinja with the same syntax (which is currently ![[name/of/partial]])
-for key, tmpl in tmpls.iteritems():
-    tmpl.parse_partials()
+    logger.debug("Parsing templates for partials and performing replacements.")
+  # Parse all partials within the templates, replacing the partial text with the
+  # given partial, so that we have support for partials in both mustache and
+  # jinja with the same syntax (which is currently ![[name/of/partial]])
+    for key, tmpl in tmpls.iteritems():
+        tmpl.parse_partials()
