@@ -35,32 +35,29 @@ class MixedObject(BaseController):
         if self._no_login and self.request.session.id:
             self.request.session.push_alert("That page is only for non logged in people. Weird huh?", level="info")
             if not self._redirect_url:
-                self.head = Head("303 SEE OTHER", [("Location", "/")])
+                return Head("303 SEE OTHER", [("Location", "/")])
             else:
-                self.head = Head("303 SEE OTHER", [("Location", self._redirect_url)])
-            return "", self.head
+                return Head("303 SEE OTHER", [("Location", self._redirect_url)])
 
         if self._login[0] and not self.request.session.id:
             if not self._login[1]:
                 self.request.session.push_alert("You need to be logged in to view this page.", level="error")
 
             if not self._redirect_url:
-                self.head = Head("401 UNAUTHORIZED")
+                return Head("401 UNAUTHORIZED")
             else:
-                self.head = Head("303 SEE OTHER", [("Location", self._redirect_url)])
-            return "", self.head
+                return Head("303 SEE OTHER", [("Location", self._redirect_url)])
 
         if self._groups:
             if not check_groups(self._groups, self.request.session.groups):
                 if not self.request.session.has_perm(root_group):
                     self.request.session.push_alert("You are not authorized to perfom this action.", level="error")
                     if not self._redirect_url:
-                        self.head = Head("401 UNAUTHORIZED")
+                        return Head("401 UNAUTHORIZED")
                     else:
-                        self.head = Head("303 SEE OTHER", [("Location", self._redirect_url)])
-                    return "", self.head
+                        return Head("303 SEE OTHER", [("Location", self._redirect_url)])
 
-        return None, None
+        return None
 
     def post_content_hook(self, content):
         if self.head.status not in ["303 SEE OTHER"]:
