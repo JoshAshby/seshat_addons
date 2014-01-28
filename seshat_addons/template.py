@@ -149,7 +149,7 @@ NEW MTIME: %s
             if matches:
                 for match in matches:
                     name = match[:len(match)-2][3:]
-                    pre_engine.replace(match, tmpls[name].raw)
+                    pre_engine = pre_engine.replace(match, tmpls[name].raw)
 
             return pre_engine
         except KeyError:
