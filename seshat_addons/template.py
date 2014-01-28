@@ -352,4 +352,5 @@ def read_in_templates():
   # given partial, so that we have support for partials in both mustache and
   # jinja with the same syntax (which is currently ![[name/of/partial]])
     for key, tmpl in tmpls.iteritems():
-        tmpl._parse_partials()
+        updated, partials = tmpl._parse_partials()
+        tmpl._replace_partials(partials)
