@@ -114,38 +114,41 @@ NEW MTIME: %s
                 raw = unicode(openTmpl.read())
 
             self._mtime = mtime
-            self._raw = raw
-            self._parse_raw()
-            if partials_ready:
-                self.parse_partials()
-            self._raw_to_engine()
+            self._parse_raw(raw)
 
-    def _parse_raw(self):
-        if self._raw[:3] == config_delim:
-            config, template = self._raw.split(config_delim, 2)[1:]
+            if partials_ready:
+                tmpl = self.parse_partials()
+            else:
+                tmpl = raw
+
+            self._raw_to_engine(tmpl)
+
+    def _parse_raw(self, raw):
+        if raw[:3] == config_delim:
+            config, template = raw.split(config_delim, 2)[1:]
             self._config = yaml.load(config)
         else:
-            template = self._raw
+            self._config = {}
+            template = raw
 
         self._raw_template = template
 
-    def _raw_to_engine(self):
+    def _raw_to_engine(self, raw):
         if(self.is_mustache):
-            self._engine_template = self._raw_template
+            self._engine_template = raw
         if(self.is_jinja):
-            self._engine_template = jinja2.Template(self._raw_template)
-
-    def replace(self, placeholder, text):
-        self._raw_template = self._raw_template.replace(placeholder, text)
-        self._raw_to_engine()
+            self._engine_template = jinja2.Template(raw)
 
     def parse_partials(self):
         try:
+            pre_engine = copy.copy(self._raw_template)
             matches = partial_re.findall(self._raw_template)
             if matches:
                 for match in matches:
                     name = match[:len(match)-2][3:]
-                    self.replace(match, tmpls[name].raw)
+                    pre_engine.replace(match, tmpls[name].raw)
+
+            return pre_engine
         except KeyError:
             raise KeyError("Couldn't find the template {}, as a partial of {}".format(name, self._file_bit))
 
@@ -318,6 +321,7 @@ class PartialTemplate(template):
 
 def read_in_templates():
     global partials_ready
+    global tmpls
   # Parse all template files into a template object
     for top, folders, files in os.walk(templates_base):
         for fi in files:
