@@ -14,7 +14,7 @@ http://joshashby.com
 joshuaashby@joshashby.com
 """
 import json
-from views.template import template
+from template import template
 import seshat.actions as actions
 
 
