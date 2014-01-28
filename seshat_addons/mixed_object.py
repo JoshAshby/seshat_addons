@@ -13,7 +13,7 @@ Josh Ashby
 http://joshashby.com
 joshuaashby@joshashby.com
 """
-import seshat.base_object as base
+from seshat.controller import BaseController
 from seshat.head import Head
 
 root_group = "root"
@@ -23,7 +23,7 @@ def check_groups(groups, user_groups):
     return len(set(groups).intersection(set(user_groups))) >= 1
 
 
-class MixedObject(base.BaseObject):
+class MixedObject(BaseController):
     _login = (False, False)
     _no_login = False
     _groups = None
@@ -62,6 +62,8 @@ class MixedObject(base.BaseObject):
 
         return None, None
 
-    def post_content_hook(self):
+    def post_content_hook(self, content):
         if self.head.status not in ["303 SEE OTHER"]:
             del self.request.session.alerts
+
+        return content
