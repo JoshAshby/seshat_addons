@@ -91,14 +91,24 @@ class templateFile(object):
             self._engine_template = jinja2.Template(raw)
 
     def _parse_partials(self):
-        try:
-            pre_engine = copy.copy(self._raw_template)
-            matches = partial_re.findall(self._raw_template)
+        updated = False
+        partials = []
+        matches = partial_re.findall(self._raw_template)
 
-            if matches:
-                for match in matches:
-                    name = match[:len(match)-2][3:]
-                    pre_engine = pre_engine.replace(match, tmpls[name].template)
+        if matches:
+            for match in matches:
+                name = match[:len(match)-2][3:]
+                partials.append(match)
+                updated = updated or tmpls[name]._update_template()
+
+        return updated, partials
+
+    def _replace_partials(self, partials):
+        pre_engine = copy.copy(self._raw_template)
+        try:
+            for match in partials:
+                name = match[:len(match)-2][3:]
+                pre_engine = pre_engine.replace(match, tmpls[name].template)
 
             self._raw_to_engine(pre_engine)
 
@@ -106,6 +116,7 @@ class templateFile(object):
             raise KeyError("Couldn't find the template {}, as a partial of {}".format(name, self._file_bit))
 
     def _update_template(self):
+        updated = False
         mtime = os.path.getmtime(self._file)
 
         if self._mtime < mtime:
@@ -120,8 +131,14 @@ class templateFile(object):
 """ % (self._file, self.extension, pt, nt))
 
             self._read_template()
+            updated = True
 
-        self._parse_partials()
+        updated, partials = self._parse_partials()
+
+        if updated:
+            self._replace_partials(partials)
+
+        return updated
 
     @property
     def template(self):
