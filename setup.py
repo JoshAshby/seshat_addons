@@ -6,7 +6,11 @@ setup(
     version=seshat_addons.__version__,
     author='Joshua P Ashby',
     author_email='joshuaashby@joshashby.com',
-    packages=['seshat_addons'],
+    packages=[
+      'seshat_addons',
+      'seshat_addons.seshat',
+      'seshat_addons.view'
+    ],
     url='https://github.com/JoshAshby/seshat_addons',
     license='GPL v3 (See LICENSE.txt for more info)',
     description='Common helpers for Seshat that I use',
