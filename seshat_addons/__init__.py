@@ -2,8 +2,8 @@
 __version__ = '0.1.0'
 VERSION = tuple(map(int, __version__.split('.')))
 
-import .seshat
-import .view
+from . import seshat
+from . import view
 
 __all__ = [
     "seshat.func_mods",
