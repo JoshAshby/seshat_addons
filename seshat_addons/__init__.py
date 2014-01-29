@@ -2,10 +2,10 @@
 __version__ = '0.1.0'
 VERSION = tuple(map(int, __version__.split('.')))
 
+import view
+import addons
+
 __all__ = [
-    "addons.func_mods",
-    "addons.mixed_object",
-    "addons.obj_mods",
-    "addons.request_item",
-    "view.template"
+    "addons",
+    "view"
     ]
