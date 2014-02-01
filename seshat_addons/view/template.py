@@ -107,10 +107,12 @@ class templateFile(object):
         pre_engine = copy.copy(self._raw_template)
         try:
             for match in partials:
+                name = match[:len(match)-2][3:]
+                if self.extension != tmpls[name].extension:
+                    raise Exception("Can't mix template types in partials!")
                 logger.debug("""============= Partial =============
     REPLACING: {}
     PARENT TEMPLATE:{}""".format(match, self._file))
-                name = match[:len(match)-2][3:]
                 pattern = "({})".format(re.escape(match))
                 pattern_regex = re.compile(pattern)
                 pre_engine = re.sub(pattern_regex, tmpls[name].template, pre_engine)
