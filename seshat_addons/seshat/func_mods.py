@@ -13,8 +13,7 @@ Josh Ashby
 http://joshashby.com
 joshuaashby@joshashby.com
 """
-import json
-import seshat_addons.utils.patch_json
+from ..utils.patch_json import json
 from ..view.template import template
 import seshat.actions as actions
 
