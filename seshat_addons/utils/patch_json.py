@@ -13,5 +13,3 @@ def _default(self, obj):
 
 _default.default = JSONEncoder().default # save unmodified default
 JSONEncoder.default = _default # replacement
-
-import json
