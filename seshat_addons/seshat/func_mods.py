@@ -49,15 +49,10 @@ def JSON(f):
             return [{"error": res.head[0]}]
 
         if type(res) is dict:
-            self.head.add_header("Content-Type", "application/json")
-            return json.dumps([res])
+            res = [res]
 
-        elif type(res) is list:
-            self.head.add_header("Content-Type", "application/json")
-            return json.dumps(res)
-
-        else:
-            return res
+        self.head.add_header("Content-Type", "application/json")
+        return json.dumps(res)
 
     return wrapper
 
