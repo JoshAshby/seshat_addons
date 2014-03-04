@@ -14,7 +14,7 @@ http://joshashby.com
 joshuaashby@joshashby.com
 """
 import json
-import util.patch_json
+import utils.patch_json
 from ..view.template import template
 import seshat.actions as actions
 
