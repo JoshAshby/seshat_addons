@@ -9,7 +9,8 @@ setup(
     packages=[
       'seshat_addons',
       'seshat_addons.seshat',
-      'seshat_addons.view'
+      'seshat_addons.view',
+      'seshat_addons.utils'
     ],
     url='https://github.com/JoshAshby/seshat_addons',
     license='GPL v3 (See LICENSE.txt for more info)',
