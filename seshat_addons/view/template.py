@@ -15,12 +15,13 @@ http://joshashby.com
 joshuaashby@joshashby.com
 """
 import pystache
-import os
 import logging
-import yaml
+import codecs
 import jinja2
 import arrow
 import copy
+import yaml
+import os
 import re
 
 logger = logging.getLogger("seshat.views")
@@ -67,7 +68,7 @@ class templateFile(object):
     MTIME: %s
 """ % (self._file, self.extension, nt))
 
-        with open(self._file, "r") as openTmpl:
+        with codecs.open(self._file, "r", "utf-8") as openTmpl:
             raw = unicode(openTmpl.read())
 
         self._mtime = mtime

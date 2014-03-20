@@ -28,14 +28,22 @@ def HTML(f):
 
         res = f(*args, **kwargs)
 
-        self.head.add_header("Content-Type", "text/html")
+        if isinstance(res, actions.BaseAction):
+            return res
+
+        if type(res) is dict:
+            self.view.data = res
+            res = self.view
 
         if isinstance(res, template):
             string = res.render()
+
         else:
             string = res
 
         del res
+
+        self.head.add_header("Content-Type", "text/html")
         return string
 
     return wrapper
@@ -44,9 +52,11 @@ def HTML(f):
 def JSON(f):
     def wrapper(*args, **kwargs):
         self = args[0]
+
         res = f(*args, **kwargs)
-        if isinstance(res, actions.Unauthorized) or isinstance(res, actions.NotFound):
-            return [{"error": res.head[0]}]
+
+        if isinstance(res, actions.BaseAction):
+            return res
 
         if type(res) is dict:
             res = [res]
@@ -61,35 +71,36 @@ def Guess(f):
     def wrapper(*args, **kwargs):
         self = args[0]
 
-        data = {"title": self._title if self._title else "Untitled"}
-        self.view = template(self._tmpl, self.request, data)
-
         res = f(*args, **kwargs)
-        t_res = type(res)
 
         if isinstance(res, actions.BaseAction):
             return res
 
-        if isinstance(res, template):
-            final_res = res.render()
-
-        elif t_res is str:
-            final_res = res
-
-        elif t_res is dict:
-            final_res = json.dumps([res])
-
-        elif t_res is list:
-            final_res = json.dumps(res)
-
-        del res
-
         if self.request.accepts("html") or self.request.accepts("*/*"):
             self.head.add_header("Content-Type", "text/html")
+            data = {"title": self._title if self._title else "Untitled"}
+            data.update(res)
+            view = template(self._tmpl, self.request, data).render()
+
+            del res
+
+            return view
+
+        if self.request.accepts("json") or self.request.accepts("*/*"):
+            self.head.add_header("Content-Type", "application/json")
+
+            t_res = type(res)
+            if t_res is dict:
+                final_res = json.dumps([res])
+
+            elif t_res is list:
+                final_res = json.dumps(res)
+
+            del res
+
             return final_res
 
-        elif self.request.accepts("json") or self.request.accepts("*/*"):
-            self.head.add_header("Content-Type", "application/json")
-            return json.dumps([final_res])
+        else:
+            return unicode(res)
 
     return wrapper
