@@ -58,7 +58,7 @@ def JSON(f):
         if isinstance(res, actions.BaseAction):
             return res
 
-        if type(res) is dict:
+        if type(res) is not list:
             res = [res]
 
         self.head.add_header("Content-Type", "application/json")
