@@ -13,9 +13,9 @@ Josh Ashby
 http://joshashby.com
 joshuaashby@joshashby.com
 """
-from seshat.controller import BaseController
-from seshat.head import Head
-
+from seshat.controller import Controller
+from collections import namedtuple
+from seshat.actions import Redirect, Unauthorized
 root_group = "root"
 
 
@@ -23,8 +23,8 @@ def check_groups(groups, user_groups):
     return len(set(groups).intersection(set(user_groups))) >= 1
 
 
-class MixedObject(BaseController):
-    _login = (False, False)
+class MixedObject(Controller):
+    _login = namedtuple('Login', ['login', 'quiet'])(False, False)
     _no_login = False
     _groups = None
     _redirect_url = ""
@@ -32,35 +32,29 @@ class MixedObject(BaseController):
     _title = None
 
     def pre_content_hook(self):
-        if self._no_login and self.request.session.id:
-            self.request.session.push_alert("That page is only for non logged in people. Weird huh?", level="info")
+        if self._no_login and self.session.id:
+            self.session.push_alert("That page is only for non logged in people. Weird huh?", level="info")
             if not self._redirect_url:
-                return Head("303 SEE OTHER", [("Location", "/")])
+                return Redirect("/")
             else:
-                return Head("303 SEE OTHER", [("Location", self._redirect_url)])
+                return Redirect(self._redirect_url)
 
-        if self._login[0] and not self.request.session.id:
-            if not self._login[1]:
-                self.request.session.push_alert("You need to be logged in to view this page.", level="error")
+        if self._login["login"] and not self.session.id:
+            if not self._login["quiet"]:
+                self.session.push_alert("You need to be logged in to view this page.", level="error")
 
             if not self._redirect_url:
-                return Head("401 UNAUTHORIZED")
+                return Unauthorized()
             else:
-                return Head("303 SEE OTHER", [("Location", self._redirect_url)])
+                return Redirect(self._redirect_url)
 
         if self._groups:
-            if not check_groups(self._groups, self.request.session.groups):
-                if not self.request.session.has_perm(root_group):
-                    self.request.session.push_alert("You are not authorized to perfom this action.", level="error")
+            if not check_groups(self._groups, self.session.groups):
+                if not self.session.has_perm(root_group):
+                    self.session.push_alert("You are not authorized to perfom this action.", level="error")
                     if not self._redirect_url:
-                        return Head("401 UNAUTHORIZED")
+                        return Unauthorized()
                     else:
-                        return Head("303 SEE OTHER", [("Location", self._redirect_url)])
+                        return Redirect(self._redirect_url)
 
         return None
-
-    def post_content_hook(self, content):
-        if self.head.status not in ["303 SEE OTHER"]:
-            del self.request.session.alerts
-
-        return content

@@ -13,6 +13,7 @@ Josh Ashby
 http://joshashby.com
 joshuaashby@joshashby.com
 """
+from collections import namedtuple
 
 
 def login(groups=None, redirect="", quiet=False):
@@ -20,7 +21,7 @@ def login(groups=None, redirect="", quiet=False):
         groups = []
 
     def wrapper(HTTPObject):
-        HTTPObject._login = (True, quiet)
+        HTTPObject._login = namedtuple('Login', ['login', 'quiet'])(True, quiet)
         HTTPObject._groups = groups
         HTTPObject._redirect_url = redirect
 

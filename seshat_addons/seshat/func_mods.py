@@ -14,6 +14,7 @@ http://joshashby.com
 joshuaashby@joshashby.com
 """
 import json
+from seshat.response import Response
 import seshat_addons.utils.patch_json
 from ..view.template import template
 import seshat.actions as actions
@@ -28,7 +29,7 @@ def HTML(f):
 
         res = f(*args, **kwargs)
 
-        if isinstance(res, actions.BaseAction):
+        if isinstance(res, actions.BaseAction) or isinstance(res, Response):
             return res
 
         if type(res) is dict:
@@ -41,9 +42,7 @@ def HTML(f):
         else:
             string = res
 
-        del res
-
-        self.head.add_header("Content-Type", "text/html")
+        self.headers.append("Content-Type", "text/html")
         return string
 
     return wrapper
@@ -55,13 +54,13 @@ def JSON(f):
 
         res = f(*args, **kwargs)
 
-        if isinstance(res, actions.BaseAction):
+        if isinstance(res, actions.BaseAction) or isinstance(res, Response):
             return res
 
         if type(res) is not list:
             res = [res]
 
-        self.head.add_header("Content-Type", "application/json")
+        self.headers.append("Content-Type", "application/json")
         return json.dumps(res)
 
     return wrapper
@@ -73,21 +72,19 @@ def Guess(f):
 
         res = f(*args, **kwargs)
 
-        if isinstance(res, actions.BaseAction):
+        if isinstance(res, actions.BaseAction) or isinstance(res, Response):
             return res
 
-        if self.request.accepts("html") or self.request.accepts("*/*"):
+        if "text/html" in self.request.headers.accept:
             self.head.add_header("Content-Type", "text/html")
             data = {"title": self._title if self._title else "Untitled"}
             data.update(res)
             view = template(self._tmpl, self.request, data).render()
 
-            del res
-
             return view
 
-        if self.request.accepts("json") or self.request.accepts("*/*"):
-            self.head.add_header("Content-Type", "application/json")
+        if "application/json" in self.request.headers.accept:
+            self.headers.append("Content-Type", "application/json")
 
             t_res = type(res)
             if t_res is dict:
@@ -95,8 +92,6 @@ def Guess(f):
 
             elif t_res is list:
                 final_res = json.dumps(res)
-
-            del res
 
             return final_res
 
