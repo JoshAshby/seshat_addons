@@ -24,8 +24,12 @@ def HTML(f):
     def wrapper(*args, **kwargs):
         self = args[0]
 
-        data = {"title": self._title if self._title else "Untitled"}
-        self.view = template(self._tmpl, self.request, data)
+        data = {
+            "title": self._title if self._title else "Untitled",
+            "session": self.session,
+            "req": self.request
+        }
+        self.view = template(self._tmpl, data)
 
         res = f(*args, **kwargs)
 
@@ -77,9 +81,13 @@ def Guess(f):
 
         if "text/html" in self.request.headers.accept:
             self.head.add_header("Content-Type", "text/html")
-            data = {"title": self._title if self._title else "Untitled"}
+            data = {
+                "title": self._title if self._title else "Untitled",
+                "session": self.session,
+                "req": self.request
+            }
             data.update(res)
-            view = template(self._tmpl, self.request, data).render()
+            view = template(self._tmpl, data).render()
 
             return view
 

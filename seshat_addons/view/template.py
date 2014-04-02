@@ -40,7 +40,7 @@ partial_re = re.compile(partial_syntax_regex)
 partials_ready = False
 
 
-class templateFile(object):
+class TemplateFile(object):
     def __init__(self, fileBit):
         """
         Reads in fileBit into memory, and sets the modified time for the
@@ -197,8 +197,8 @@ class templateFile(object):
         self._config[item] = value
 
 
-class template(object):
-    def __init__(self, template, request=None, additional_data=None):
+class Template(object):
+    def __init__(self, template, additional_data=None):
         self._baseData = {
             "title": "",
             "stylesheets": [],
@@ -209,8 +209,6 @@ class template(object):
         }
         if additional_data:
             self._baseData.update(additional_data)
-        if request:
-            self._baseData["req"] = request
 
         self._template = template
         self._base = "skeletons/navbar"
@@ -326,7 +324,7 @@ class template(object):
         return unicode(_render)
 
 
-class PartialTemplate(template):
+class PartialTemplate(Template):
     def render(self):
         data = self._baseData.copy()
 
@@ -351,7 +349,7 @@ def read_in_templates():
             if extension in ["mustache", "jinja"]:
                 name = '/'.join([base, file_name]).lstrip('/')
                 fi = '/'.join([base, fi])
-                tmpls[name] = templateFile(fi)
+                tmpls[name] = TemplateFile(fi)
 
     partials_ready = True
 
