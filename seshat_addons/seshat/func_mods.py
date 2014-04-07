@@ -16,7 +16,7 @@ joshuaashby@joshashby.com
 import json
 from seshat.response import Response
 import seshat_addons.utils.patch_json
-from seshat_addons.view.template import template
+from seshat_addons.view.template import Template
 import seshat.actions as actions
 
 
@@ -29,7 +29,7 @@ def HTML(f):
             "session": self.session,
             "req": self.request
         }
-        self.view = template(self._tmpl, data)
+        self.view = Template(self._tmpl, data)
 
         res = f(*args, **kwargs)
 
@@ -40,7 +40,7 @@ def HTML(f):
             self.view.data = res
             res = self.view
 
-        if isinstance(res, template):
+        if isinstance(res, Template):
             string = res.render()
 
         else:
@@ -87,7 +87,7 @@ def Guess(f):
                 "req": self.request
             }
             data.update(res)
-            view = template(self._tmpl, data).render()
+            view = Template(self._tmpl, data).render()
 
             return view
 
