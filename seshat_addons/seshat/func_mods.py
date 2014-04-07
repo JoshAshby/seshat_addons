@@ -16,7 +16,7 @@ joshuaashby@joshashby.com
 import json
 from seshat.response import Response
 import seshat_addons.utils.patch_json
-from ..view.template import template
+from seshat_addons.view.template import template
 import seshat.actions as actions
 
 
