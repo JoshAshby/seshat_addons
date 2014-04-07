@@ -39,8 +39,8 @@ class MixedObject(Controller):
             else:
                 return Redirect(self._redirect_url)
 
-        if self._login["login"] and not self.session.id:
-            if not self._login["quiet"]:
+        if self._login.login and not self.session.id:
+            if not self._login.quiet:
                 self.session.push_alert("You need to be logged in to view this page.", level="error")
 
             if not self._redirect_url:

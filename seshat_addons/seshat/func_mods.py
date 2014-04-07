@@ -33,7 +33,7 @@ def HTML(f):
 
         res = f(*args, **kwargs)
 
-        if isinstance(res, actions.BaseAction) or isinstance(res, Response):
+        if isinstance(res, actions.Action) or isinstance(res, Response):
             return res
 
         if type(res) is dict:
@@ -58,7 +58,7 @@ def JSON(f):
 
         res = f(*args, **kwargs)
 
-        if isinstance(res, actions.BaseAction) or isinstance(res, Response):
+        if isinstance(res, actions.Action) or isinstance(res, Response):
             return res
 
         if type(res) is not list:
@@ -76,7 +76,7 @@ def Guess(f):
 
         res = f(*args, **kwargs)
 
-        if isinstance(res, actions.BaseAction) or isinstance(res, Response):
+        if isinstance(res, actions.Action) or isinstance(res, Response):
             return res
 
         if "text/html" in self.request.headers.accept:
