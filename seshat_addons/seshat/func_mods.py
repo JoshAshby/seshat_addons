@@ -27,7 +27,10 @@ def HTML(f):
         data = {
             "title": self._title if self._title else "Untitled",
             "session": self.session,
-            "req": self.request
+            "req": self.request,
+            "buckets": self.buckets,
+            "announcements": self.announcements,
+            "has_announcements": (len(self.announcements._data)>=1)
         }
         self.view = Template(self._tmpl, data)
 
@@ -84,7 +87,10 @@ def Guess(f):
             data = {
                 "title": self._title if self._title else "Untitled",
                 "session": self.session,
-                "req": self.request
+                "req": self.request,
+                "buckets": self.buckets,
+                "announcements": self.announcements,
+                "has_announcements": (len(self.announcements._data)>=1)
             }
             data.update(res)
             view = Template(self._tmpl, data).render()

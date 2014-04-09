@@ -18,6 +18,10 @@ from collections import namedtuple
 from seshat.actions import Redirect, Unauthorized
 root_group = "root"
 
+# TODO: MOVE THIS SHIT!
+import models.redis.bucket.bucketModel as bm
+import models.redis.announcement.announcementModel as am
+
 
 def check_groups(groups, user_groups):
     return len(set(groups).intersection(set(user_groups))) >= 1
@@ -30,6 +34,10 @@ class MixedObject(Controller):
     _redirect_url = ""
     _tmpl = None
     _title = None
+
+    def finish_init(self):
+        self.buckets = bm.CfgBuckets()
+        self.announcements = am.CfgAnnouncements()
 
     def pre_content_hook(self):
         if self._no_login and self.session.id:
