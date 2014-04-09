@@ -31,7 +31,7 @@ def login(groups=None, redirect="", quiet=False):
 
 def not_logged_in(redirect=""):
     def wrapper(HTTPObject):
-        HTTPObject._login = (False, False)
+        HTTPObject._login = namedtuple('Login', ['login', 'quiet'])(False, False)
         HTTPObject._no_login = True
         HTTPObject._redirect_url = redirect
 
