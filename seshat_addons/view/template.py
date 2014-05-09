@@ -211,7 +211,7 @@ class Template(object):
             self._baseData.update(additional_data)
 
         self._template = template
-        self._base = "skeletons/navbar"
+        self._base = "skeletons/header"
 
     @property
     def template(self):
